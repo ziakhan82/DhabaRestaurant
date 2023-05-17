@@ -37,6 +37,36 @@ namespace Dhaba.Web.Controllers
             }
             return View();
         }
+       
+            public async Task<IActionResult> Checkout()
+            {
+                return View(await LoadCartDtoBasedOnLoggedInUser());
+            }
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CartDto cartDto)
+        {
+            try
+            {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var response = await _cartService.Checkout<ResponseDto>(cartDto.CartHeader, accessToken);
+                if (!response.IsSuccess)
+                {
+                    TempData["Error"] = response.DisplayMessage;
+                    return RedirectToAction(nameof(Checkout));
+                }
+                return RedirectToAction(nameof(Confirmation));
+            }
+            catch (Exception e)
+            {
+                return View(cartDto);
+            }
+        }
+       
+        public async Task<IActionResult> Confirmation()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ActionName("RemoveCoupon")]
         public async Task<IActionResult> RemoveCoupon(CartDto cartDto)

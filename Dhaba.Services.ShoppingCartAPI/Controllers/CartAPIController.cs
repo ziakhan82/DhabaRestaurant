@@ -1,4 +1,5 @@
 ﻿using Dhaba.Services.ProductAPI.Models.Dto;
+using Dhaba.Services.ShoppingCartAPI.Messages;
 using Dhaba.Services.ShoppingCartAPI.Models.Dto;
 using Dhaba.Services.ShoppingCartAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -113,45 +114,45 @@ namespace Dhaba.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
-    //    [HttpPost("Checkout")]
-    //    public async Task<object> Checkout(CheckoutHeaderDto checkoutHeader)
-    //    {
-    //        try
-    //        {
-    //            CartDto cartDto = await _cartRepository.GetCartByUserId(checkoutHeader.UserId);
-    //            if (cartDto == null)
-    //            {
-    //                return BadRequest();
-    //            }
+        [HttpPost("Checkout")]
+        public async Task<object> Checkout(CheckoutHeaderDto checkoutHeader)
+        {
+            try
+            {
+                CartDto cartDto = await _cartRepository.GetCartByUserId(checkoutHeader.UserId);
+                if (cartDto == null)
+                {
+                    return BadRequest();
+                }
 
-    //            if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
-    //            {
-    //                CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
-    //                if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
-    //                {
-    //                    _response.IsSuccess = false;
-    //                    _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
-    //                    _response.DisplayMessage = "Coupon Price has changed, please confirm";
-    //                    return _response;
-    //                }
-    //            }
+                //if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
+                //{
+                    //CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
+                    //if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
+                    //{
+                    //    _response.IsSuccess = false;
+                    //    _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
+                    //    _response.DisplayMessage = "Coupon Price has changed, please confirm";
+                    //    return _response;
+                //    //}
+                //}
 
-    //            checkoutHeader.CartDetails = cartDto.CartDetails;
-    //            //logic to add message to process order.
-    //            await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
+                checkoutHeader.CartDetails = cartDto.CartDetails;
+                //logic to add message to process order.
+                //await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
 
-    //            ////rabbitMQ
-    //            //_rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
-    //            await _cartRepository.ClearCart(checkoutHeader.UserId);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            _response.IsSuccess = false;
-    //            _response.ErrorMessages = new List<string>() { ex.ToString() };
-    //        }
-    //        return _response;
-    //    }
-    //}
-}
+                ////rabbitMQ
+                //_rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
+                //await _cartRepository.ClearCart(checkoutHeader.UserId);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
     }
+}
+    
 
