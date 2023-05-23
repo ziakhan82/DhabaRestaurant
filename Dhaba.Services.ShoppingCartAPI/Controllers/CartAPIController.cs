@@ -1,4 +1,4 @@
-﻿using Dhaba.Services.ProductAPI.Models.Dto;
+﻿using Dhaba.MessageBus;
 using Dhaba.Services.ShoppingCartAPI.Messages;
 using Dhaba.Services.ShoppingCartAPI.Models.Dto;
 using Dhaba.Services.ShoppingCartAPI.Repository;
@@ -11,11 +11,16 @@ namespace Dhaba.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : Controller
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICouponRepository _couponRepository;
         protected ResponseDto _response;
-        public CartAPIController(ICartRepository cartRepository )
+        private readonly IMessageBus _messageBus;
+        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus, ICouponRepository couponRepository)
         {
             _cartRepository = cartRepository;
+            _couponRepository = couponRepository;
+            _messageBus = messageBus;
             this._response = new ResponseDto();
+          
         }
 
         [HttpGet("GetCart/{userId}")]
@@ -125,25 +130,25 @@ namespace Dhaba.Services.ShoppingCartAPI.Controllers
                     return BadRequest();
                 }
 
-                //if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
-                //{
-                    //CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
-                    //if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
-                    //{
-                    //    _response.IsSuccess = false;
-                    //    _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
-                    //    _response.DisplayMessage = "Coupon Price has changed, please confirm";
-                    //    return _response;
-                //    //}
-                //}
+                if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
+                {
+                    CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
+                    if (checkoutHeader.DiscountTotal != coupon.DiscountAmount) // if its = means the coupon is still valid
+                    {
+                        _response.IsSuccess = false;
+                        _response.ErrorMessages = new List<string>() { "Coupon Price has changed, please confirm" };
+                        _response.DisplayMessage = "Coupon Price has changed, please confirm";
+                        return _response;
+                        }
+                    }
 
-                checkoutHeader.CartDetails = cartDto.CartDetails;
+                    checkoutHeader.CartDetails = cartDto.CartDetails;
                 //logic to add message to process order.
-                //await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
+                await _messageBus.PublishMessage(checkoutHeader, "checkoutmessagetopic");
 
                 ////rabbitMQ
                 //_rabbitMQCartMessageSender.SendMessage(checkoutHeader, "checkoutqueue");
-                //await _cartRepository.ClearCart(checkoutHeader.UserId);
+                await _cartRepository.ClearCart(checkoutHeader.UserId);
             }
             catch (Exception ex)
             {

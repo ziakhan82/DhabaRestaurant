@@ -1,27 +1,29 @@
-﻿//using Newtonsoft.Json;
+﻿using Dhaba.Services.ShoppingCartAPI.Models.Dto;
 
-//namespace Dhaba.Services.ShoppingCartAPI.Repository
-//{
-//    public class CouponRepository : ICouponRepository
-//    {
-//        private readonly HttpClient client;
+using Newtonsoft.Json;
 
-//        public CouponRepository(HttpClient client)
-//        {
-//            this.client = client;
-//        }
+namespace Dhaba.Services.ShoppingCartAPI.Repository
+{
+    public class CouponRepository : ICouponRepository
+    {
+        private readonly HttpClient client;
 
-//        public async Task<CouponDto> GetCoupon(string couponName)
-//        {
-//            var response = await client.GetAsync($"/api/coupon/{couponName}");
-//            var apiContent = await response.Content.ReadAsStringAsync();
-//            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-//            if (resp.IsSuccess)
-//            {
-//                return JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(resp.Result));
-//            }
-//            return new CouponDto();
-//        }
-//    }
-//}
- 
+        public CouponRepository(HttpClient client)
+        {
+            this.client = client;
+        }
+
+        public async Task<CouponDto> GetCoupon(string couponName)
+        {
+            var response = await client.GetAsync($"/api/coupon/{couponName}");
+            var apiContent = await response.Content.ReadAsStringAsync();
+            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+            if (resp.IsSuccess)
+            {
+                return JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(resp.Result));
+            }
+            return new CouponDto();
+        }
+    }
+}
+

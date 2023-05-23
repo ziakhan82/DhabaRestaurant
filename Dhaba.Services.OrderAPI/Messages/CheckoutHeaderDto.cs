@@ -1,9 +1,6 @@
-﻿using Dhaba.MessageBus;
-using Dhaba.Services.ShoppingCartAPI.Models.Dto;
-
-namespace Dhaba.Services.ShoppingCartAPI.Messages
+﻿namespace Dhaba.Services.OrderAPI.Messages
 {
-    public class CheckoutHeaderDto : BaseMessage
+    public class CheckoutHeaderDto
     {
         public int CartHeaderId { get; set; }
         public string UserId { get; set; }

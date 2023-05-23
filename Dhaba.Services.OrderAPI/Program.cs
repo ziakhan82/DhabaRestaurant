@@ -1,8 +1,9 @@
 using AutoMapper;
 using Dhaba.MessageBus;
-using Dhaba.Services.ShoppingCartAPI;
-using Dhaba.Services.ShoppingCartAPI.DbContexts;
-using Dhaba.Services.ShoppingCartAPI.Repository;
+using Dhaba.Services.OrderAPI.DbContexts;
+using Dhaba.Services.OrderAPI.Extensions;
+using Dhaba.Services.OrderAPI.Messaging;
+using Dhaba.Services.OrderAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,18 +11,17 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<ICartRepository, CartRepository>();
-builder.Services.AddSingleton<IMessageBus, AzureServiceBusMessageBus>();
-builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-builder.Services.AddHttpClient<ICouponRepository,CouponRepository>(u=> u.BaseAddress=
-new Uri(builder.Configuration["ServiceUrls:CouponAPI"]));
-IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
-builder.Services.AddSingleton(mapper);
+//IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+//builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-//builder.Services.AddScoped<IProductRespositroy, ProductRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+var optionBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSingleton(new OrderRepository(optionBuilder.Options));
+builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
+builder.Services.AddSingleton<IMessageBus, AzureServiceBusMessageBus>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication("Bearer")
@@ -47,8 +47,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Dhaba.Services.ShoppingCartAPI", Version = "v1" });
-    c.EnableAnnotations();
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Dhaba.Services.ProductAPI", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"Enter 'Bearer' [space] and your token",
@@ -95,5 +94,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseAzureServiceBusConsumer();
 
 app.Run();

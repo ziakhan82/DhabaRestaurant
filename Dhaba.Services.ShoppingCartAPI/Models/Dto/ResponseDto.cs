@@ -1,4 +1,4 @@
-﻿namespace Dhaba.Services.ProductAPI.Models.Dto
+﻿namespace Dhaba.Services.ShoppingCartAPI.Models.Dto
 {
     public class ResponseDto
     {
