@@ -11,8 +11,7 @@ namespace Dhaba.MessageBus
     public class AzureServiceBusMessageBus : IMessageBus
     {
         //can be improved
-        private string connectionString = "Endpoint=sb://dhabarestaurant.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=qUA7CrVwInoUBbSGN/g0+pLkCD+QXJBYK+ASbDOc26w=;EntityPath=checkoutmessagetopic";
-
+        private string connectionString = "Endpoint=sb://dhabarestaurant.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=W0ZRNglKOAZyvSLQEsP36MHlo+0PuW8xl+ASbNHdN4c=";
         public async Task PublishMessage(BaseMessage message, string topicName)
         {
 
