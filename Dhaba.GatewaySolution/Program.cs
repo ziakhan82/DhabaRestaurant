@@ -3,7 +3,6 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
 builder.Services.AddAuthentication("Bearer")
                .AddJwtBearer("Bearer", options =>
                {
@@ -16,7 +15,9 @@ builder.Services.AddAuthentication("Bearer")
 
                });
 builder.Services.AddOcelot();
-app.MapGet("/", () => "Hello World!");
+var app = builder.Build();
 
-app.Run();
+//app.MapGet("/", () => "Hello World!");
 await app.UseOcelot();
+app.Run();
+
